@@ -7,8 +7,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListener;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.transition.Transition;
 
 @Configuration
 @EnableStateMachineFactory
@@ -41,6 +45,22 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderS
                 .and()
                 .withExternal().source(OrderStates.PAID).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL);
 
+    }
+
+    @Override
+    public void configure(StateMachineConfigurationConfigurer<OrderStates, OrderEvents> config) throws Exception {
+        config.withConfiguration().listener(stateMachineListener());
+    }
+
+    @Bean
+    StateMachineListener<OrderStates, OrderEvents> stateMachineListener() {
+        return new StateMachineListenerAdapter<>() {
+            @Override
+            public void transition(Transition<OrderStates, OrderEvents> transition) {
+                System.out.println("Transitioning from: " + transition.getSource().getId() + " to: "
+                        + transition.getTarget().getId());
+            }
+        };
     }
 
     @Bean
