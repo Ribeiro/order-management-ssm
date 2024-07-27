@@ -1,4 +1,4 @@
-package br.tec.gtech.spring.order_management_ssm.StateMachine;
+package br.tec.gtech.spring.order_management_ssm.state_machine;
 
 import java.util.EnumSet;
 
@@ -44,7 +44,6 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderS
                 .withExternal().source(OrderStates.VALIDATED).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL)
                 .and()
                 .withExternal().source(OrderStates.PAID).target(OrderStates.CANCELLED).event(OrderEvents.CANCEL);
-
     }
 
     @Override
@@ -57,6 +56,10 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderS
         return new StateMachineListenerAdapter<>() {
             @Override
             public void transition(Transition<OrderStates, OrderEvents> transition) {
+                if(transition.getSource() == null || transition.getTarget() == null){
+                    return;
+                }
+
                 System.out.println("Transitioning from: " + transition.getSource().getId() + " to: "
                         + transition.getTarget().getId());
             }
